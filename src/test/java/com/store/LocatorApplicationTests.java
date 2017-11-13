@@ -1,10 +1,12 @@
 package com.store;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.store.dto.StoreDTO;
 import com.store.dto.json.MainObj;
 import com.store.dto.json.StoreObj;
 import com.store.persistence.entity.Store;
 import com.store.persistence.repository.StoreRepository;
+import com.store.service.LocatorService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +22,7 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -29,12 +32,15 @@ public class LocatorApplicationTests {
 	@Autowired
 	private StoreRepository storeRepository;
 
+	@Autowired
+	private LocatorService locatorService;
+
 	@Before
 	public void setup(){
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			File file = new ClassPathResource("stores.json").getFile();
-			MainObj obj = mapper.readValue(file, MainObj.class);
+			InputStream inputStream = new ClassPathResource("stores.json").getInputStream();
+			MainObj obj = mapper.readValue(inputStream, MainObj.class);
 			for (StoreObj store : obj.getStores()) {
 				GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(store.getLongitude()), Double.parseDouble(store.getLatitude()));
 				Store storeEntity = Store.builder().addressName(store.getAddressName()).city(store.getCity()).complexNumber(store.getComplexNumber()).locationType(store.getLocationType())
@@ -66,6 +72,12 @@ public class LocatorApplicationTests {
 		PageRequest pageRequest = new PageRequest(0,5);
 		List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(0, 0), distance,pageRequest).getContent();
 		assert(storeList.get(0).getContent().getCity().equals("Maastricht"));
+	}
+
+	@Test
+	public void find5ClosestStoresViaServiceSuccessfully(){
+		List<StoreDTO> storeList = locatorService.findClosestStores(0d,0d,500000d,5);
+		assert(storeList.get(0).getCity().contains("Maastricht"));
 	}
 
 }

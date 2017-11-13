@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +35,8 @@ public class LocatorService {
     public void init() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            File file = new ClassPathResource("stores.json").getFile();
-            MainObj obj = mapper.readValue(file, MainObj.class);
+           InputStream inputStream = new ClassPathResource("stores.json").getInputStream();
+            MainObj obj = mapper.readValue(inputStream, MainObj.class);
             for (StoreObj storeObj : obj.getStores()) {
                 GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(storeObj.getLongitude()), Double.parseDouble(storeObj.getLatitude()));
                 Store storeEntity = Store.builder().addressName(storeObj.getAddressName()).city(storeObj.getCity()).complexNumber(storeObj.getComplexNumber()).locationType(storeObj.getLocationType())
@@ -45,13 +46,15 @@ public class LocatorService {
                 storeRepository.save(storeEntity);
 
             }
+            log.info("Stores were saved to the embedded database");
 
         } catch (Exception e) {
-            e.printStackTrace();
+           log.error(e.getMessage());
         }
     }
 
     public List<StoreDTO> findClosestStores(Double longitute, Double latitude, Double dist, Integer size) {
+        log.info("Searching for closest store");
         Distance distance = new Distance(dist, Metrics.KILOMETERS);
         PageRequest pageRequest = new PageRequest(0, size);
         List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(longitute, latitude), distance, pageRequest).getContent();
