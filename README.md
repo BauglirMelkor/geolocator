@@ -7,7 +7,7 @@
  Returns closest stores regarding to specified inputs <br />
  Basic angularjs client implemented in order to call the rest api <br />
  
- You may run locator-0.0.1-SNAPSHOT.jar under any folder that you copy it.  <br />
+You may download and run locator-0.0.1-SNAPSHOT.jar under any folder that you copy it.  <br />
 
 1. Run the command below  <br />
 
