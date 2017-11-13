@@ -6,6 +6,7 @@ import com.store.dto.json.MainObj;
 import com.store.dto.json.StoreObj;
 import com.store.persistence.entity.Store;
 import com.store.persistence.repository.StoreRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class LocatorService {
 
     @Autowired
@@ -34,11 +36,12 @@ public class LocatorService {
             ObjectMapper mapper = new ObjectMapper();
             File file = new ClassPathResource("stores.json").getFile();
             MainObj obj = mapper.readValue(file, MainObj.class);
-            for (StoreObj store : obj.getStores()) {
-                GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(store.getLongitude()), Double.parseDouble(store.getLatitude()));
-                Store storeEntity = Store.builder().addressName(store.getAddressName()).city(store.getCity()).complexNumber(store.getComplexNumber()).locationType(store.getLocationType())
-                        .postalCode(store.getPostalCode()).showWarningMessage(store.getShowWarningMessage()).street(store.getStreet()).street2(store.getStreet2()).street3(store.getStreet3())
-                        .todayClose(store.getTodayClose()).uuid(store.getUuid()).todayOpen(store.getTodayOpen()).location(geoJsonPoint).build();
+            for (StoreObj storeObj : obj.getStores()) {
+                GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(storeObj.getLongitude()), Double.parseDouble(storeObj.getLatitude()));
+                Store storeEntity = Store.builder().addressName(storeObj.getAddressName()).city(storeObj.getCity()).complexNumber(storeObj.getComplexNumber()).locationType(storeObj.getLocationType())
+                        .sapStoreID(storeObj.getSapStoreID()).collectionPoint(storeObj.getCollectionPoint())
+                        .postalCode(storeObj.getPostalCode()).showWarningMessage(storeObj.getShowWarningMessage()).street(storeObj.getStreet()).street2(storeObj.getStreet2()).street3(storeObj.getStreet3())
+                        .todayClose(storeObj.getTodayClose()).uuid(storeObj.getUuid()).todayOpen(storeObj.getTodayOpen()).location(geoJsonPoint).build();
                 storeRepository.save(storeEntity);
 
             }
@@ -48,9 +51,9 @@ public class LocatorService {
         }
     }
 
-    public List<StoreDTO> findClosestStores(Double longitute, Double latitude, Double dist) {
+    public List<StoreDTO> findClosestStores(Double longitute, Double latitude, Double dist, Integer size) {
         Distance distance = new Distance(dist, Metrics.KILOMETERS);
-        PageRequest pageRequest = new PageRequest(0, 5);
+        PageRequest pageRequest = new PageRequest(0, size);
         List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(longitute, latitude), distance, pageRequest).getContent();
         return storeList.stream().map(p -> convertToStoreDTO(p.getContent())).collect(Collectors.toList());
     }
@@ -59,6 +62,7 @@ public class LocatorService {
         return StoreDTO.builder().addressName(store.getAddressName()).city(store.getAddressName()).collectionPoint(store.getCollectionPoint())
                 .complexNumber(store.getComplexNumber()).latitude(String.valueOf(store.getLocation().getY())).longitude(String.valueOf(store.getLocation().getX()))
                 .locationType(store.getLocationType()).postalCode(store.getPostalCode()).sapStoreID(store.getSapStoreID())
+                .uuid(store.getUuid())
                 .street(store.getStreet()).street2(store.getStreet2()).street3(store.getStreet3())
                 .showWarningMessage(store.getShowWarningMessage()).todayOpen(store.getTodayOpen()).todayClose(store.getTodayClose()).build();
     }
