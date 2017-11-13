@@ -38,6 +38,11 @@ public class Store {
     private String locationType;
 
     private String todayClose;
+
+    private Boolean collectionPoint;
+
+    private String sapStoreID;
+
     @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoJsonPoint location;
 }

@@ -1,4 +1,4 @@
-package com.store.dto;
+package com.store.dto.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,8 +8,8 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
-public class StoreObj {
+public class MainObj {
     @JsonProperty("stores")
-    private List<Stores> stores;
+    private List<StoreObj> stores;
 
 }

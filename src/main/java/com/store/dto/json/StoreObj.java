@@ -1,11 +1,11 @@
-package com.store.dto;
+package com.store.dto.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class Stores {
+public class StoreObj {
 
     @JsonProperty("city")
     private String city;

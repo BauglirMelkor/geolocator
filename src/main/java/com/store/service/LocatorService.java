@@ -1,21 +1,25 @@
 package com.store.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.store.dto.StoreObj;
-import com.store.dto.Stores;
+import com.store.dto.StoreDTO;
+import com.store.dto.json.MainObj;
+import com.store.dto.json.StoreObj;
 import com.store.persistence.entity.Store;
 import com.store.persistence.repository.StoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.geo.*;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LocatorService {
@@ -29,8 +33,8 @@ public class LocatorService {
         try {
             ObjectMapper mapper = new ObjectMapper();
             File file = new ClassPathResource("stores.json").getFile();
-            StoreObj obj = mapper.readValue(file, StoreObj.class);
-            for (Stores store : obj.getStores()) {
+            MainObj obj = mapper.readValue(file, MainObj.class);
+            for (StoreObj store : obj.getStores()) {
                 GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(store.getLongitude()), Double.parseDouble(store.getLatitude()));
                 Store storeEntity = Store.builder().addressName(store.getAddressName()).city(store.getCity()).complexNumber(store.getComplexNumber()).locationType(store.getLocationType())
                         .postalCode(store.getPostalCode()).showWarningMessage(store.getShowWarningMessage()).street(store.getStreet()).street2(store.getStreet2()).street3(store.getStreet3())
@@ -39,17 +43,23 @@ public class LocatorService {
 
             }
 
-            Store se = storeRepository.findOne("WXIKYx4XBRYAAAFIIgoYwKxK");
-            System.out.println("STORE: " + se.getAddressName());
-            Distance distance = new Distance(500000d, Metrics.KILOMETERS);
-            PageRequest pageRequest = new PageRequest(0,5);
-           List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(0, 0), distance,pageRequest).getContent();
-                for(GeoResult<Store> s :    storeList) {
-                    System.out.println("STORE: " + s.getContent().getAddressName());
-                }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public List<StoreDTO> findClosestStores(Double longitute, Double latitude, Double dist) {
+        Distance distance = new Distance(dist, Metrics.KILOMETERS);
+        PageRequest pageRequest = new PageRequest(0, 5);
+        List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(longitute, latitude), distance, pageRequest).getContent();
+        return storeList.stream().map(p -> convertToStoreDTO(p.getContent())).collect(Collectors.toList());
+    }
+
+    StoreDTO convertToStoreDTO(Store store) {
+        return StoreDTO.builder().addressName(store.getAddressName()).city(store.getAddressName()).collectionPoint(store.getCollectionPoint())
+                .complexNumber(store.getComplexNumber()).latitude(String.valueOf(store.getLocation().getY())).longitude(String.valueOf(store.getLocation().getX()))
+                .locationType(store.getLocationType()).postalCode(store.getPostalCode()).sapStoreID(store.getSapStoreID())
+                .street(store.getStreet()).street2(store.getStreet2()).street3(store.getStreet3())
+                .showWarningMessage(store.getShowWarningMessage()).todayOpen(store.getTodayOpen()).todayClose(store.getTodayClose()).build();
+    }
 }
