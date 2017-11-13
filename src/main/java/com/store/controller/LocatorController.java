@@ -23,8 +23,8 @@ public class LocatorController {
     private LocatorService locatorService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/{long}/{lat}/{dist}/{size}")
-    public ResponseEntity<List<StoreDTO>> matchDetail(@PathVariable(value = "long", required = true) Double longitute,
-                                                      @PathVariable(value = "lat", required = true) Double latitute,
+    public ResponseEntity<List<StoreDTO>> matchDetail(@PathVariable(value = "long", required = true) Double longitude,
+                                                      @PathVariable(value = "lat", required = true) Double latitude,
                                                       @PathVariable(value = "dist", required = false) Double distance,
                                                       @PathVariable(value = "size", required = false) Integer size
     ) throws LocationException {
@@ -34,11 +34,11 @@ public class LocatorController {
         if (size == null || size == -1) {
             size = 5;
         }
-        if (longitute == -181 || latitute == -91) {
-            throw new LocationException("Please Provide Longitude and Latitude Exception");
+        if (longitude == -181 || latitude == -91) {
+            throw new LocationException("Please Provide Longitude and Latitude Information");
         }
         try {
-            return ResponseEntity.ok().body(locatorService.findClosestStores(longitute, latitute, distance, size));
+            return ResponseEntity.ok().body(locatorService.findClosestStores(longitude, latitude, distance, size));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

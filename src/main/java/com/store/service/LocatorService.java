@@ -18,7 +18,6 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +34,7 @@ public class LocatorService {
     public void init() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-           InputStream inputStream = new ClassPathResource("stores.json").getInputStream();
+            InputStream inputStream = new ClassPathResource("stores.json").getInputStream();
             MainObj obj = mapper.readValue(inputStream, MainObj.class);
             for (StoreObj storeObj : obj.getStores()) {
                 GeoJsonPoint geoJsonPoint = new GeoJsonPoint(Double.parseDouble(storeObj.getLongitude()), Double.parseDouble(storeObj.getLatitude()));
@@ -49,15 +48,15 @@ public class LocatorService {
             log.info("Stores were saved to the embedded database");
 
         } catch (Exception e) {
-           log.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
-    public List<StoreDTO> findClosestStores(Double longitute, Double latitude, Double dist, Integer size) {
+    public List<StoreDTO> findClosestStores(Double longitude, Double latitude, Double dist, Integer size) {
         log.info("Searching for closest store");
         Distance distance = new Distance(dist, Metrics.KILOMETERS);
         PageRequest pageRequest = new PageRequest(0, size);
-        List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(longitute, latitude), distance, pageRequest).getContent();
+        List<GeoResult<Store>> storeList = storeRepository.findByLocationNear(new Point(longitude, latitude), distance, pageRequest).getContent();
         return storeList.stream().map(p -> convertToStoreDTO(p.getContent())).collect(Collectors.toList());
     }
 

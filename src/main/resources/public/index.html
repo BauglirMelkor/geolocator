@@ -1,35 +1,36 @@
 <!doctype html>
 <html ng-app="locatorApp">
-	<head>
-		<title>Search Closest Stores</title>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
-    	<script src="hello.js"></script>
-	</head>
+<head>
+    <title>Search Closest Stores</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    <script src="hello.js"></script>
+</head>
 
-	<body>
-		<div ng-controller="LocatorController">
-		Longitute: 	<input type="text" name="longitute" ng-model="longitute" /> <br/>
-		Latitude:	<input type="text" name="latitude" ng-model="latitude" /> <br/>
-		Distance:	<input type="text" name="distance" ng-model="distance"  /> <br/>
-		Result Size: <input type="text" name="size" ng-model="size"  /> <br/>
-			<input type="button" value="Search" ng-click="searchClosestStoreLocation(longitute,latitude,distance,size)" >  </input> <br/>
-			<div ng-repeat="store in stores">
-				<br/>
-				-----------------------
-				<br/>
-				{{$index + 1}} <br/>
-				City: {{store.city}} <br/>
-				Postal Code: {{store.postalCode}} <br/>
-				Street : {{store.street}} <br/>
-				Street 1: {{store.street1}} <br/>
-				Street 2: {{store.street2}} <br/>
-				Address Name: {{store.addressName}} <br/>
-				Today Open: {{store.todayOpen}} <br/>
-				Today Close: {{store.todayClose}} <br/>
-				-----------------------
-				<br/>
-				<br/>
-			</div>
-		</div>
-	</body>
+<body>
+<div ng-controller="LocatorController">
+    Longitude: <input type="text" name="longitute" ng-model="longitute"/> <br/>
+    Latitude: <input type="text" name="latitude" ng-model="latitude"/> <br/>
+    Distance: <input type="text" name="distance" ng-model="distance"/> <br/>
+    Result Size: <input type="text" name="size" ng-model="size"/> <br/>
+    <input type="button" value="Search"
+           ng-click="searchClosestStoreLocation(longitute,latitude,distance,size)">  </input> <br/>
+    <div ng-repeat="store in stores">
+        <br/>
+        -----------------------
+        <br/>
+        {{$index + 1}} <br/>
+        City: {{store.city}} <br/>
+        Postal Code: {{store.postalCode}} <br/>
+        Street : {{store.street}} <br/>
+        Street 1: {{store.street1}} <br/>
+        Street 2: {{store.street2}} <br/>
+        Address Name: {{store.addressName}} <br/>
+        Today Open: {{store.todayOpen}} <br/>
+        Today Close: {{store.todayClose}} <br/>
+        -----------------------
+        <br/>
+        <br/>
+    </div>
+</div>
+</body>
 </html>
